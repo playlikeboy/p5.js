@@ -1,4 +1,4 @@
-name: Linting
+name: Linting Code
 
 on: [push]
 
@@ -13,9 +13,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - name: npm install and lint
+    - name: npm install and lint source code
       run: |
         npm install
-        npm run lint
+        npm run lint:source
       env:
         CI: true
