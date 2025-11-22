@@ -178,6 +178,13 @@ export const glslBackend = {
   generateUniformDeclaration(name, typeInfo) {
     return `${this.getTypeName(typeInfo.baseType, typeInfo.dimension)} ${name}`;
   },
+  generateVaryingVariable(varName, typeInfo) {
+    return `${typeInfo.fnName} ${varName}`;
+  },
+  generateLocalDeclaration(varName, typeInfo) {
+    const typeName = typeInfo.fnName;
+    return `${typeName} ${varName};`;
+  },
   generateStatement(generationContext, dag, nodeID) {
     const node = getNodeDataFromID(dag, nodeID);
     const semicolon = generationContext.suppressSemicolon ? '' : ';';
