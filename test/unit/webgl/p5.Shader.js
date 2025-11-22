@@ -328,7 +328,13 @@ suite('p5.Shader', function() {
         returnType: {
           typeName: 'vec4',
           qualifiers: [],
-          properties: undefined
+          properties: undefined,
+          dataType: {
+            baseType: 'float',
+            dimension: 4,
+            fnName: 'vec4',
+            priority: 3
+          }
         },
         parameters: [
           {
@@ -336,13 +342,20 @@ suite('p5.Shader', function() {
             type: {
               typeName: 'FilterInputs',
               qualifiers: [],
+              dataType: null,
               properties: [
                 {
                   name: 'texCoord',
                   type: {
                     typeName: 'vec2',
                     qualifiers: [],
-                    properties: undefined
+                    properties: undefined,
+                    dataType: {
+                      baseType: 'float',
+                      dimension: 2,
+                      fnName: 'vec2',
+                      priority: 3
+                    }
                   }
                 },
                 {
@@ -350,7 +363,13 @@ suite('p5.Shader', function() {
                   type: {
                     typeName: 'vec2',
                     qualifiers: [],
-                    properties: undefined
+                    properties: undefined,
+                    dataType: {
+                      baseType: 'float',
+                      dimension: 2,
+                      fnName: 'vec2',
+                      priority: 3
+                    }
                   }
                 },
                 {
@@ -358,7 +377,13 @@ suite('p5.Shader', function() {
                   type: {
                     typeName: 'vec2',
                     qualifiers: [],
-                    properties: undefined
+                    properties: undefined,
+                    dataType: {
+                      baseType: 'float',
+                      dimension: 2,
+                      fnName: 'vec2',
+                      priority: 3
+                    }
                   }
                 }
               ]
@@ -369,7 +394,13 @@ suite('p5.Shader', function() {
             type: {
               typeName: 'sampler2D',
               qualifiers: ['in'],
-              properties: undefined
+              properties: undefined,
+              dataType: {
+                baseType: 'sampler2D',
+                dimension: 1,
+                fnName: 'sampler2D',
+                priority: -10
+              }
             }
           }
         ]
