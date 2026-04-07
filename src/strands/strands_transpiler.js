@@ -1544,16 +1544,19 @@ function transformSetCallsInControlFlow(ast) {
   // Collect functions that have .set() calls in control flow
   const collectFunctions = {
     ArrowFunctionExpression(node, ancestors) {
+      if (ancestors.some(nodeIsUniform)) { return; }
       if (functionHasSetInControlFlow(node)) {
         functionsToTransform.push(node);
       }
     },
     FunctionExpression(node, ancestors) {
+      if (ancestors.some(nodeIsUniform)) { return; }
       if (functionHasSetInControlFlow(node)) {
         functionsToTransform.push(node);
       }
     },
     FunctionDeclaration(node, ancestors) {
+      if (ancestors.some(nodeIsUniform)) { return; }
       if (functionHasSetInControlFlow(node)) {
         functionsToTransform.push(node);
       }
@@ -1575,6 +1578,7 @@ function transformHelperFunctionEarlyReturns(ast) {
   // Collect helper functions that need transformation
   const collectHelperFunctions = {
     VariableDeclarator(node, ancestors) {
+      if (ancestors.some(nodeIsUniform)) { return; }
       const init = node.init;
       if (init && (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')) {
         if (functionHasEarlyReturns(init)) {
@@ -1583,6 +1587,7 @@ function transformHelperFunctionEarlyReturns(ast) {
       }
     },
     FunctionDeclaration(node, ancestors) {
+      if (ancestors.some(nodeIsUniform)) { return; }
       if (functionHasEarlyReturns(node)) {
         helperFunctionsToTransform.push(node);
       }
@@ -1626,6 +1631,11 @@ export function transpileStrandsToJS(p5, sourceString, srcLocations, scope) {
 
   // Fourth pass: transform if/for statements in post-order using recursive traversal
   const postOrderControlFlowTransform = {
+    CallExpression(node, state, c) {
+      if (nodeIsUniform(node)) { return; }
+      if (node.callee) c(node.callee, state);
+      for (const arg of node.arguments) c(arg, state);
+    },
     IfStatement(node, state, c) {
       state.inControlFlow++;
       // First recursively process children
