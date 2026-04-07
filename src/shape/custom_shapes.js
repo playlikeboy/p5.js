@@ -466,6 +466,14 @@ class Quad extends ShapePrimitive {
   }
 }
 
+/**
+ * TODO: Future enhancement — align with arcVertex proposal (#6459)
+ * Currently stores start/stop angles and mode (OPEN/CHORD/PIE).
+ * For full SVG compatibility and arcs inside beginShape/endShape,
+ * we may want to add an arc-to-vertex variant that matches the
+ * arcVertex() API discussed in #6459.
+ */
+
 class ArcPrimitive extends ShapePrimitive {
   #x;
   #y;
@@ -1153,6 +1161,8 @@ class PrimitiveVisitor {
 // requires testing
 class PrimitiveToPath2DConverter extends PrimitiveVisitor {
   path = new Path2D();
+  strokePath = null;
+  fillPath = null;
   strokeWeight;
 
   constructor({ strokeWeight }) {
@@ -1276,20 +1286,44 @@ class PrimitiveToPath2DConverter extends PrimitiveVisitor {
     const centerY = arc.y + arc.h / 2;
     const radiusX = arc.w / 2;
     const radiusY = arc.h / 2;
+    const startX = centerX + radiusX * Math.cos(arc.start);
+    const startY = centerY + radiusY * Math.sin(arc.start);
 
-    this.path.ellipse(
-      centerX, centerY, radiusX, radiusY, 0, arc.start, arc.stop
+    const delta = arc.stop - arc.start;
+    const isFullCircle = Math.abs(delta % (2 * Math.PI)) < 0.00001 &&
+      Math.abs(delta) > 0.00001;
+
+    const createPieSlice = ! (
+      arc.mode === constants.CHORD ||
+      arc.mode === constants.OPEN ||
+      isFullCircle
     );
 
-    if (arc.mode === constants.OPEN) {
-      // OPEN: leave path open — arc stroke/fill is just the curve
-    } else if (arc.mode === constants.CHORD) {
+    if (!this.fillPath) this.fillPath = new Path2D(this.path);
+    if (!this.strokePath) this.strokePath = new Path2D(this.path);
 
-      this.path.closePath();
-    } else {
-      this.path.lineTo(centerX, centerY);
-      this.path.closePath();
+    this.fillPath.moveTo(startX, startY);
+    this.fillPath.ellipse(centerX, centerY, radiusX, radiusY,
+      0, arc.start, arc.stop);
+    if (createPieSlice) {
+      this.fillPath.lineTo(centerX, centerY);
     }
+    this.fillPath.closePath();
+
+    this.strokePath.moveTo(startX, startY);
+    this.strokePath.ellipse(centerX, centerY, radiusX, radiusY,
+      0, arc.start, arc.stop);
+    if (arc.mode === constants.PIE && createPieSlice) {
+      this.strokePath.lineTo(centerX, centerY);
+    }
+    if (arc.mode === constants.PIE || arc.mode === constants.CHORD) {
+      this.strokePath.closePath();
+    }
+
+    // Still maintain base path just in case
+    this.path.moveTo(startX, startY);
+    this.path.ellipse(centerX, centerY, radiusX, radiusY,
+      0, arc.start, arc.stop);
   }
   visitEllipsePrimitive(ellipse) {
     const centerX = ellipse.x + ellipse.w / 2;
@@ -1297,6 +1331,7 @@ class PrimitiveToPath2DConverter extends PrimitiveVisitor {
     const radiusX = ellipse.w / 2;
     const radiusY = ellipse.h / 2;
 
+    this.path.moveTo(centerX + radiusX, centerY);
     this.path.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
   }
   visitQuadStrip(quadStrip) {

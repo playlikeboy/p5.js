@@ -287,10 +287,10 @@ class Renderer2D extends Renderer {
       this.clipPath.closePath();
     } else {
       if (this.states.fillColor) {
-        this.drawingContext.fill(visitor.path);
+        this.drawingContext.fill(visitor.fillPath || visitor.path);
       }
       if (this.states.strokeColor) {
-        this.drawingContext.stroke(visitor.path);
+        this.drawingContext.stroke(visitor.strokePath || visitor.path);
       }
     }
   }
