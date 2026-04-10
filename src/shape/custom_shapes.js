@@ -466,7 +466,7 @@ class Quad extends ShapePrimitive {
   }
 }
 
-/**
+/*
  * TODO: Future enhancement — align with arcVertex proposal (#6459)
  * Currently stores start/stop angles and mode (OPEN/CHORD/PIE).
  * For full SVG compatibility and arcs inside beginShape/endShape,
