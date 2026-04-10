@@ -3827,21 +3827,16 @@ ${hookUniformFields}}
       const isLarge1D = totalIterations > 1024 && y === 1 && z === 1;
 
       if (exceedsLimits || isLarge1D) {
-        if (totalIterations > 1000000) {
-          // 3D cube type for extreme large counts
-          px = Math.ceil(Math.pow(totalIterations, 1 / 3));
-          py = Math.ceil(Math.pow(totalIterations, 1 / 3));
-          pz = Math.ceil(totalIterations / (px * py));
-        } else {
-          // 2D square type for moderate large counts
-          px = Math.ceil(Math.sqrt(totalIterations));
-          py = Math.ceil(totalIterations / px);
-          pz = 1;
-        }
+        // Always use 2D square spreading (√N × √N).
+        // Benchmarks showed 2D square equals or outperforms 3D cube at every
+        // scale tested, with simpler index reconstruction in the shader.
+        px = Math.ceil(Math.sqrt(totalIterations));
+        py = Math.ceil(totalIterations / px);
+        pz = 1;
 
         if (p5.debug || exceedsLimits) {
           console.warn(
-            `p5.js: Compute dispatch (${x}, ${y}, ${z}) auto-spread to (${px}, ${py}, ${pz}) ` +
+            `p5.js: Compute dispatch (${x}, ${y}, ${z}) auto-spread to (${px}, ${py}, 1) ` +
             `to ${exceedsLimits ? 'stay within GPU limits' : 'optimize performance'}.`
           );
         }
